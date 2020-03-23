@@ -70,11 +70,11 @@ def main():
     cider_predictor = create_init_cider_model(args, device)
     
     for epochId in range(args.num_train_epochs):
-        logger.debug("Epoch number " + str(epochId))
         logger.debug("Starting cider predictor training")
         cider_predictor, correlation_value, vilbert_train_iteration, vilbert_val_iteration = train_cider_predictor(args, cider_predictor, writer, logger, device, epochId, vilbert_train_iteration, vilbert_val_iteration)
         correlation_values_for_predictor[epochId] = correlation_value
         logger.debug("Finished cider predictor training")
+        
 
 if __name__ == "__main__":
     main()
