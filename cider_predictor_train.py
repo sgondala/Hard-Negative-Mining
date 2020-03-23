@@ -41,7 +41,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_recall_fscore_support
 
 from args import get_parser
-from utils import print_f1_scores, add_summary_value, eval_cider_and_append_values
+from utils_hard_negative import print_f1_scores
 
 def create_init_cider_model(args, device):
     timeStamp = '_' + args.vilbert_config_file.split('/')[1].split('.')[0]
@@ -67,7 +67,7 @@ def create_init_cider_model(args, device):
     return model
 
 def train_cider_predictor(args, model, writer, logger, device, epochId, i, j):
-    bert_weight_name = json.load(open("config/" + args.vilbert_bert_model + "_weight_name.json", "r"))
+    bert_weight_name = json.load(open("../vilbert_beta/config/" + args.vilbert_bert_model + "_weight_name.json", "r"))
     tokenizer = BertTokenizer.from_pretrained(args.vilbert_bert_model, do_lower_case=True)
 
     dataset = CiderDataset(args.captions_path, args.tsv_path, args.cider_path, tokenizer)
@@ -85,21 +85,6 @@ def train_cider_predictor(args, model, writer, logger, device, epochId, i, j):
     #####################################
 
     no_decay = ["bias", "LayerNorm.bias", "LayerNorm.weight"]
-
-    if args.freeze != -1:
-        bert_weight_name_filtered = []
-        for name in bert_weight_name:
-            if 'embeddings' in name:
-                bert_weight_name_filtered.append(name)
-            elif 'encoder' in name:
-                layer_num = name.split('.')[2]
-                if int(layer_num) <= args.freeze:
-                    bert_weight_name_filtered.append(name)
-        
-        optimizer_grouped_parameters = []
-        for key, value in dict(model.named_parameters()).items():
-            if key[12:] in bert_weight_name_filtered:
-                value.requires_grad = False
         
     optimizer_grouped_parameters = []
     lr = args.vilbert_learning_rate
@@ -108,13 +93,13 @@ def train_cider_predictor(args, model, writer, logger, device, epochId, i, j):
             if 'vil_prediction' in key:
                 lr = 1e-4
             else:
-                if args.vision_scratch:
-                    if key[12:] in bert_weight_name:
-                        lr = args.vilbert_learning_rate
-                    else:
-                        lr = 1e-4
-                else:
-                    lr = args.vilbert_learning_rate
+                # if args.vision_scratch:
+                #     if key[12:] in bert_weight_name:
+                #         lr = args.vilbert_learning_rate
+                #     else:
+                #         lr = 1e-4
+                # else:
+                lr = args.vilbert_learning_rate
             if any(nd in key for nd in no_decay):
                 optimizer_grouped_parameters += [
                     {"params": [value], "lr": lr, "weight_decay": 0.01}
@@ -133,7 +118,7 @@ def train_cider_predictor(args, model, writer, logger, device, epochId, i, j):
     vilbert_optimizer = BertAdam(
         optimizer_grouped_parameters,
         lr=args.vilbert_learning_rate,
-        warmup=args.warmup_proportion,
+        # warmup=args.warmup_proportion,
         t_total=num_train_optimization_steps,
         schedule='warmup_constant',
     )

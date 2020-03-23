@@ -41,7 +41,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_recall_fscore_support
 
 from args import get_parser
-from utils import print_f1_scores, add_summary_value, eval_cider_and_append_values
+from utils_hard_negative import print_f1_scores
 from cider_predictor_train import create_init_cider_model, train_cider_predictor
 
 # Reproducibility

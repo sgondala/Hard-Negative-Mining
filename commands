@@ -1,0 +1,3 @@
+Temporary for testing
+
+python train.py --vilbert_from_pretrained ../vilbert_beta/pretrained_weights/pytorch_model_9.bin --vilbert_output_dir checkpoints/temp/ --vilbert_config_file ../vilbert_beta/config/bert_base_6layer_6conect.json  --captions_path ../vilbert_beta/data/ --cider_path ../vilbert_beta/data/ --tsv_path /srv/share2/sgondala/tmp/trainval_36/python3_stuff/nocaps_val_vg_detector_features_adaptiv.tsv --vilbert_batch_size 20 --num_train_epochs 3
